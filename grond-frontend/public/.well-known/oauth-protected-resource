@@ -1,0 +1,10 @@
+{
+  "resource": "https://grond.daemonprotocol.com/api/v1",
+  "authorization_servers": [
+    "https://grond.daemonprotocol.com"
+  ],
+  "bearer_methods_supported": ["header"],
+  "scopes_supported": ["api:read", "api:write", "admin:grants"],
+  "resource_documentation": "https://grond.daemonprotocol.com/authorization/SKILL.md",
+  "resource_name": "Grond OSINT API"
+}

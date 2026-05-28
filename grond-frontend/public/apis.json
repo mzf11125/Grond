@@ -1,0 +1,33 @@
+{
+  "name": "Grond OSINT API",
+  "description": "Agentic Open Source Intelligence Platform — evidence-first pipelines, AI-orchestrated tools, and analyst-ready reporting.",
+  "url": "https://grond.daemonprotocol.com/apis.json",
+  "image": "https://grond.daemonprotocol.com/logo.svg",
+  "created": "2025-01-01",
+  "modified": "2026-05-19",
+  "specificationVersion": "0.20",
+  "tags": ["osint", "intelligence", "security", "reconnaissance", "threat-intel"],
+  "maintainers": [
+    {"FN": "Grond Team", "email": "dev@daemonprotocol.com", "url": "https://github.com/mzf11125/Grond"}
+  ],
+  "common": [
+    {"type": "Authentication", "url": "https://grond.daemonprotocol.com/authorization/SKILL.md"},
+    {"type": "TermsOfService", "url": "https://grond.daemonprotocol.com/docs/terms"},
+    {"type": "StatusPage", "url": "https://grond.daemonprotocol.com/api/v1/health"}
+  ],
+  "apis": [
+    {
+      "name": "Grond REST API",
+      "description": "Core OSINT pipeline API — scan orchestration, individual tools, admin authorization",
+      "humanURL": "https://grond.daemonprotocol.com/integration/SKILL.md",
+      "baseURL": "https://grond.daemonprotocol.com/api/v1",
+      "properties": [
+        {"type": "OpenAPI", "url": "https://grond.daemonprotocol.com/openapi.yaml"},
+        {"type": "Documentation", "url": "https://grond.daemonprotocol.com/SKILL.md"},
+        {"type": "GettingStarted", "url": "https://grond.daemonprotocol.com/integration/SKILL.md"},
+        {"type": "Authentication", "url": "https://grond.daemonprotocol.com/authorization/SKILL.md"}
+      ],
+      "tags": ["osint", "api", "rest"]
+    }
+  ]
+}

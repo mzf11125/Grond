@@ -1,0 +1,10 @@
+{
+  "issuer": "https://grond.daemonprotocol.com",
+  "authorization_endpoint": "https://grond.daemonprotocol.com/api/v1/admin/active-scan-authorizations",
+  "token_endpoint": "https://grond.daemonprotocol.com/api/v1/auth/token",
+  "scopes_supported": ["api:read", "api:write", "admin:grants"],
+  "response_types_supported": ["token"],
+  "grant_types_supported": ["client_credentials"],
+  "token_endpoint_auth_methods_supported": ["client_secret_basic"],
+  "service_documentation": "https://grond.daemonprotocol.com/authorization/SKILL.md"
+}

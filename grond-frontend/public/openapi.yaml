@@ -1,0 +1,206 @@
+openapi: 3.1.0
+info:
+  title: Grond OSINT API
+  version: 0.2.0
+  description: >
+    Agentic Open Source Intelligence Platform API.
+    Evidence-first pipelines with deterministic collection,
+    enrichment, verification, and AI-assisted reporting.
+  contact:
+    name: Grond Team
+    url: https://github.com/mzf11125/Grond
+  license:
+    name: MIT
+servers:
+  - url: https://grond.daemonprotocol.com/api/v1
+    description: Production
+
+paths:
+  /scan:
+    post:
+      summary: Run full OSINT investigation pipeline
+      operationId: createScan
+      tags: [Pipeline]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [target, goal, analyst_id]
+              properties:
+                target: { type: string, description: "IP, CIDR, hostname, or domain" }
+                goal: { type: string, description: "Investigation objective" }
+                analyst_id: { type: string, description: "UUID of the requesting analyst" }
+                run_nmap: { type: boolean, default: false, description: "Enable active Nmap scan (requires authorization)" }
+                investigation_profile: { type: string, enum: [general, company, social], default: general }
+                tavily_time_range: { type: string, enum: [day, week, month, year] }
+      responses:
+        "200": { description: "IntelReport with evidence, findings, and summaries" }
+        "403": { description: "Active scan authorization required" }
+        "422": { description: "Invalid input or pipeline error" }
+
+  /tools/shodan:
+    post:
+      summary: Shodan passive reconnaissance
+      operationId: runShodan
+      tags: [Tools]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [target, analyst_id, session_id]
+              properties:
+                target: { type: string }
+                query: { type: string }
+                analyst_id: { type: string }
+                session_id: { type: string }
+                max_results: { type: integer, default: 100 }
+      responses:
+        "200": { description: "Evidence array from Shodan" }
+
+  /tools/nmap:
+    post:
+      summary: Authorized Nmap active scan
+      operationId: runNmap
+      tags: [Tools]
+      security: [{ authorization_grant: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [target, analyst_id, session_id]
+              properties:
+                target: { type: string }
+                profile: { type: string, enum: [quick, standard, thorough, udp, vuln], default: standard }
+                port_range: { type: string, default: "1-1000" }
+                analyst_id: { type: string }
+                session_id: { type: string }
+                authorization_ref: { type: string }
+      responses:
+        "200": { description: "Nmap scan results" }
+        "403": { description: "Authorization required" }
+
+  /tools/tavily:
+    post:
+      summary: Tavily web search
+      operationId: runTavilySearch
+      tags: [Tools]
+      responses:
+        "200": { description: "Search results as Evidence" }
+
+  /tools/tavily/extract:
+    post:
+      summary: Tavily URL content extraction
+      operationId: runTavilyExtract
+      tags: [Tools]
+      responses:
+        "200": { description: "Extracted content as Evidence" }
+
+  /tools/edgar:
+    post:
+      summary: SEC EDGAR full-text search
+      operationId: runEdgar
+      tags: [Tools]
+      responses:
+        "200": { description: "EDGAR filing results" }
+
+  /tools/harvester:
+    post:
+      summary: theHarvester OSINT collection
+      operationId: runHarvester
+      tags: [Tools]
+      responses:
+        "200": { description: "Harvester results" }
+        "403": { description: "Active source authorization required" }
+
+  /tools/osintmap:
+    post:
+      summary: OSINTMap regional resource lookup
+      operationId: runOsintmap
+      tags: [Tools]
+      responses:
+        "200": { description: "Regional OSINT links" }
+
+  /tools/metadata:
+    post:
+      summary: File metadata extraction (ExifTool/Exiv2)
+      operationId: extractMetadata
+      tags: [Tools]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                target: { type: string }
+                analyst_id: { type: string }
+                session_id: { type: string }
+                engine: { type: string, enum: [auto, exiftool, exiv2] }
+      responses:
+        "200": { description: "File metadata" }
+
+  /tools/stego:
+    post:
+      summary: Steganography analysis
+      operationId: analyzeStego
+      tags: [Tools]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                target: { type: string }
+                analyst_id: { type: string }
+                session_id: { type: string }
+                engine: { type: string, enum: [auto, stegoveritas, lsb] }
+                password: { type: string }
+      responses:
+        "200": { description: "Stego analysis results" }
+
+  /tools/ncrack:
+    post:
+      summary: Ncrack brute-force audit (planned)
+      operationId: runNcrack
+      tags: [Tools]
+      responses:
+        "501": { description: "Not yet implemented" }
+
+  /tools/npcap/info:
+    get:
+      summary: Npcap static reference
+      operationId: getNpcapInfo
+      tags: [Tools]
+      responses:
+        "200": { description: "Npcap reference info" }
+
+  /admin/active-scan-authorizations:
+    post:
+      summary: Create active-scan authorization grant
+      operationId: createAuthorization
+      tags: [Admin]
+      security: [{ admin_key: [] }]
+      responses:
+        "200": { description: "Grant created" }
+        "403": { description: "Invalid admin key" }
+
+  /health:
+    get:
+      summary: API health check
+      operationId: healthCheck
+      tags: [System]
+      responses:
+        "200": { description: '{"status":"ok"}' }
+
+tags:
+  - name: Pipeline
+  - name: Tools
+  - name: Admin
+  - name: System
