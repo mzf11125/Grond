@@ -32,6 +32,15 @@ import { app, shell, BrowserWindow, session } from "electron";
 import { join } from "path";
 import { buildCSP } from "./csp";
 
+// Dev/CI: work around restricted environments (no /dev/shm, no GPU)
+// These switches must be set BEFORE app.whenReady()
+if (!app.isPackaged || process.env.CI) {
+  app.commandLine.appendSwitch("disable-gpu");
+  app.commandLine.appendSwitch("disable-dev-shm-usage");
+  app.commandLine.appendSwitch("no-sandbox");
+  app.commandLine.appendSwitch("disable-setuid-sandbox");
+}
+
 const isDev = !app.isPackaged;
 
 function createWindow(): void {
