@@ -28,9 +28,15 @@
  * └─────────────────────────────────────────────────┘
  */
 
-import { app, shell, BrowserWindow, session } from "electron";
+import { app, shell, BrowserWindow, session, protocol, net } from "electron";
 import { join } from "path";
 import { buildCSP } from "./csp";
+
+// Register custom app:// protocol so BrowserRouter works with local files.
+// Must be called BEFORE app.whenReady().
+protocol.registerSchemesAsPrivileged([
+  { scheme: "app", privileges: { standard: true, secure: true, supportFetchAPI: true } },
+]);
 
 // In dev/CI, restrict Electron to a single OS process.
 // This avoids GPU process spawn failures on machines without
@@ -92,11 +98,20 @@ function createWindow(): void {
   if (isDev && process.env["ELECTRON_RENDERER_URL"]) {
     mainWindow.loadURL(process.env["ELECTRON_RENDERER_URL"]);
   } else {
-    mainWindow.loadFile(join(__dirname, "../renderer/index.html"));
+    mainWindow.loadURL("app://renderer/index.html");
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  // Map app://renderer/ → out/renderer/ directory
+  const rendererDir = join(__dirname, "../renderer");
+  protocol.handle("app", (request) => {
+    const urlPath = request.url.replace("app://renderer", "");
+    return net.fetch("file://" + join(rendererDir, urlPath || "index.html"));
+  });
+
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
