@@ -1,32 +1,19 @@
 /**
  * Grond Electron — Preload Script
  *
- * This file runs in a sandboxed context with access to a subset of
- * Node.js APIs via `contextBridge`. It is the ONLY bridge between
- * the renderer (React) and the main process (Node.js).
+ * This file runs in a sandboxed context. No ESM imports allowed.
+ * Uses Electron's global `contextBridge` (available in preload scope).
  *
- * Currently empty — no IPC methods are needed. The renderer communicates
+ * Currently empty — no IPC methods needed. The renderer communicates
  * with the Grond backend exclusively over HTTP via fetch().
  *
- * When IPC is needed (e.g., native file dialogs, OS notifications, or
- * spawning local tool processes), add methods here:
+ * When IPC is needed, add:
+ *   contextBridge.exposeInMainWorld("grond", { ... })
  *
- *   contextBridge.exposeInMainWorld("grond", {
- *     openFile: () => ipcRenderer.invoke("dialog:openFile"),
- *     getVersion: () => ipcRenderer.invoke("app:getVersion"),
- *   })
- *
- * Then declare the types in `src/vite-env.d.ts`:
- *
- *   declare global {
- *     interface Window {
- *       grond: { openFile(): Promise<string>; ... }
- *     }
- *   }
+ * Then declare types in `src/vite-env.d.ts`:
+ *   interface Window { grond: { ... } }
  */
 
-import { contextBridge } from "electron";
+// contextBridge is available as a global in the preload sandbox
+// No imports needed — keep this file ESM-import-free for sandbox compat
 
-contextBridge.exposeInMainWorld("grond", {
-  // Reserved for future IPC methods
-});

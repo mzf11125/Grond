@@ -32,13 +32,14 @@ import { app, shell, BrowserWindow, session } from "electron";
 import { join } from "path";
 import { buildCSP } from "./csp";
 
-// Dev/CI: work around restricted environments (no /dev/shm, no GPU)
-// These switches must be set BEFORE app.whenReady()
-if (!app.isPackaged || process.env.CI) {
-  app.commandLine.appendSwitch("disable-gpu");
+// In dev/CI, restrict Electron to a single OS process.
+// This avoids GPU process spawn failures on machines without
+// hardware GPU drivers (headless servers, containers, VMs).
+// Production packaging uses the full multi-process model.
+if (!app.isPackaged || process.env["CI"]) {
+  app.commandLine.appendSwitch("single-process");
   app.commandLine.appendSwitch("disable-dev-shm-usage");
   app.commandLine.appendSwitch("no-sandbox");
-  app.commandLine.appendSwitch("disable-setuid-sandbox");
 }
 
 const isDev = !app.isPackaged;
